@@ -3,6 +3,7 @@ import { withAuthenticator } from "@aws-amplify/ui-react";
 import { CognitoUser } from "@aws-amplify/auth";
 import { Auth } from "aws-amplify";
 import Navbar from "../src/components/Navbar";
+import SlateJSNote from "../src/components/SlateJSNote";
 
 export interface UserAttributes {
   sub: string;
@@ -27,7 +28,7 @@ const dashboard = () => {
   return (
     <>
       <Navbar user={user?.attributes?.sub} />
-      <div>This is dashboard</div>
+      {user && <SlateJSNote userID={user?.attributes?.email} />}
     </>
   );
 };

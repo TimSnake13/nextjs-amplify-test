@@ -1,7 +1,8 @@
 type Note @model @auth(rules: [{allow: private}]) {
   id: ID!
+  title: String
   content: String
   userID: ID!
   updatedAt: AWSDateTime
 }
- 
+  

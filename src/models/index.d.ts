@@ -6,6 +6,7 @@ import { ModelInit, MutableModel, PersistentModelConstructor } from "@aws-amplif
 
 export declare class Note {
   readonly id: string;
+  readonly title?: string;
   readonly content?: string;
   readonly userID: string;
   readonly updatedAt?: string;
