@@ -2,13 +2,11 @@ import { DataStore } from "aws-amplify";
 import { Note } from "../../models";
 
 export async function uploadNoteToCloud(note: Note) {
-  const u = await DataStore.save(note);
-  console.log("Saved");
-  //   console.log(u);
+  return await DataStore.save(note);
 }
 
 export async function deleteNoteOnCloud(toDeleteID: string) {
-  const d = await DataStore.delete(Note, (note) => note.id("eq", toDeleteID));
+  return await DataStore.delete(Note, (note) => note.id("eq", toDeleteID));
 }
 
 export async function fetchMyNotes(userID: string) {
@@ -22,7 +20,7 @@ export function rearrangeNotesOrder(notes: Note[]) {
       if (
         newNotes[i].updatedAt &&
         newNotes[j].updatedAt &&
-        newNotes[i].updatedAt < newNotes[j].updatedAt
+        newNotes[i].updatedAt > newNotes[j].updatedAt
       ) {
         let temp = newNotes[i];
         newNotes[i] = newNotes[j];
