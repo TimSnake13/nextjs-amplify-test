@@ -1,5 +1,5 @@
 import { AiOutlineDelete, AiOutlinePlusSquare } from "react-icons/ai";
-import { Button, Input, Text, Flex } from "@chakra-ui/react";
+import { Button, Input, Text, Flex, Box } from "@chakra-ui/react";
 
 import React, { useEffect, useRef, useState } from "react";
 import NoteTabItem from "./NoteTabItem";
@@ -155,7 +155,7 @@ const SlateJSNote = ({ userID }: Props) => {
   return (
     <>
       <Flex direction="row" h={"100vh"} w="100%">
-        <Flex direction="column" bg={"#E5E7EB"} pt={8} px={4}>
+        <Flex direction="column" bg={"grey.600"} pt={8} px={4}>
           {notes.map((note) => (
             <NoteTabItem
               key={note.id}
@@ -165,25 +165,27 @@ const SlateJSNote = ({ userID }: Props) => {
               handleCurrentIDChanged={handleCurrentNoteIDChanged}
             />
           ))}
-          <Button
-            leftIcon={<AiOutlinePlusSquare />}
+          <Flex
+            align="center"
+            cursor="pointer"
             onClick={() => createNewNote()}
-            variant="ghost"
-            colorScheme="blue"
-            mt={2}
+            mt={3}
+            mx={1}
+            paddingX={5}
           >
-            New Note
-          </Button>
-          <Button
+            <AiOutlinePlusSquare />
+            <Text pl={3}>New Note</Text>
+          </Flex>
+          {/* <Button
             onClick={() => fetchDataAndOverWrite()}
             variant="ghost"
             colorScheme="blue"
             mt={2}
           >
             Fetch Data
-          </Button>
+          </Button> */}
         </Flex>
-        <Flex flexDirection="column" paddingX="6">
+        <Flex flexDirection="column" paddingX="12" w="100%" pt="12">
           <Flex flexDirection="row">
             <Input
               value={titleValue}
@@ -191,6 +193,7 @@ const SlateJSNote = ({ userID }: Props) => {
               placeholder="Title"
               variant="unstyled"
               size="lg"
+              fontSize={24}
             />
             <Button
               onClick={() => deleteCurrentNote()}

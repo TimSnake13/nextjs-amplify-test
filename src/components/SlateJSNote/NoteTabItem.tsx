@@ -19,8 +19,8 @@ const NoteTabItem = ({
       <Box
         bg={selected ? "teal.500" : "grey.600"}
         color={selected ? "white" : "black"}
-        boxShadow="base"
-        border="1px"
+        boxShadow={selected && "base"}
+        borderBottom={!selected && "1px"}
         borderColor="gray.200"
         borderRadius="md"
         padding={5}
@@ -30,8 +30,9 @@ const NoteTabItem = ({
         mb={1}
         cursor="pointer"
         onMouseDown={() => handleCurrentIDChanged(id)}
+        transition={"background-color ease-out 0.2s, color ease-in 0.3s"}
       >
-        <Text>{title === "" ? "Untitled Note" : title}</Text>
+        <Text>{title === "" ? "Title" : title}</Text>
       </Box>
     </>
   );
