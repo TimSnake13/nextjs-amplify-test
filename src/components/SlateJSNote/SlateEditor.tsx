@@ -2,25 +2,9 @@
 // https://github.com/ianstormtaylor/slate/blob/master/site/components.tsx
 // https://github.com/ianstormtaylor/slate/blob/master/site/examples/richtext.tsx
 
-import React, {
-  PropsWithChildren,
-  Ref,
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
+import { Box, IconButton } from "@chakra-ui/react";
 import isHotkey from "is-hotkey";
-import { Editable, withReact, useSlate, Slate } from "slate-react";
-import {
-  Editor,
-  Transforms,
-  createEditor,
-  Node,
-  Element as SlateElement,
-} from "slate";
-import { withHistory } from "slate-history";
-import { Box, Button, Icon, IconButton, Menu } from "@chakra-ui/react";
-import { cx, css } from "emotion";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   AiOutlineBars,
   AiOutlineBlock,
@@ -30,8 +14,17 @@ import {
   AiOutlineOrderedList,
   AiOutlineUnderline,
 } from "react-icons/ai";
-import { FaHeading } from "react-icons/fa";
 import { BiHeading } from "react-icons/bi";
+import { FaHeading } from "react-icons/fa";
+import {
+  createEditor,
+  Editor,
+  Element as SlateElement,
+  Node,
+  Transforms,
+} from "slate";
+import { withHistory } from "slate-history";
+import { Editable, Slate, useSlate, withReact } from "slate-react";
 
 const HOTKEYS = {
   "mod+b": "bold",
@@ -42,14 +35,22 @@ const HOTKEYS = {
 
 const LIST_TYPES = ["numbered-list", "bulleted-list"];
 
-const SlateEditor = () => {
-  const [value, setValue] = useState<Node[]>(initialValue);
+interface Props {
+  slateValue: Note[];
+  setSlateValue: React.Dispatch<React.SetStateAction<Note[]>>;
+}
+
+const SlateEditor = ({ slateValue, setSlateValue }: Props) => {
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 
   return (
-    <Slate editor={editor} value={value} onChange={(value) => setValue(value)}>
+    <Slate
+      editor={editor}
+      value={slateValue}
+      onChange={(value) => setSlateValue(value)}
+    >
       <Box
         position="relative"
         padding="1px 18px 17px"
@@ -61,9 +62,10 @@ const SlateEditor = () => {
         <MarkButton format="italic" icon={<AiOutlineItalic />} />
         <MarkButton format="underline" icon={<AiOutlineUnderline />} />
         <MarkButton format="code" icon={<AiOutlineCode />} />
-        <BlockButton format="heading-one" icon={<FaHeading />} />
+        {/* FIXME: somehow this three button is not working */}
+        {/* <BlockButton format="heading-one" icon={<FaHeading />} />
         <BlockButton format="heading-two" icon={<BiHeading />} />
-        <BlockButton format="block-quote" icon={<AiOutlineBlock />} />
+        <BlockButton format="block-quote" icon={<AiOutlineBlock />} /> */}
         <BlockButton format="numbered-list" icon={<AiOutlineOrderedList />} />
         <BlockButton format="bulleted-list" icon={<AiOutlineBars />} />
       </Box>
@@ -182,7 +184,7 @@ const BlockButton = ({ format, icon }) => {
       verticalAlign="text-bottom"
       size="lg"
       _active={{ color: "#3d3d3d" }}
-      active={isBlockActive(editor, format)}
+      active={isBlockActive(editor, format).toString()}
       onMouseDown={(event) => {
         event.preventDefault();
         toggleBlock(editor, format);
@@ -201,7 +203,7 @@ const MarkButton = ({ format, icon }) => {
       verticalAlign="text-bottom"
       size="lg"
       _active={{ color: "#3d3d3d" }}
-      active={isMarkActive(editor, format)}
+      active={isMarkActive(editor, format).toString()}
       onMouseDown={(event) => {
         event.preventDefault();
         toggleMark(editor, format);
@@ -209,42 +211,5 @@ const MarkButton = ({ format, icon }) => {
     ></IconButton>
   );
 };
-
-const initialValue = [
-  {
-    type: "paragraph",
-    children: [
-      { text: "This is editable " },
-      { text: "rich", bold: true },
-      { text: " text, " },
-      { text: "much", italic: true },
-      { text: " better than a " },
-      { text: "<textarea>", code: true },
-      { text: "!" },
-    ],
-  },
-  {
-    type: "paragraph",
-    children: [
-      {
-        text:
-          "Since it's rich text, you can do things like turn a selection of text ",
-      },
-      { text: "bold", bold: true },
-      {
-        text:
-          ", or add a semantically rendered block quote in the middle of the page, like this:",
-      },
-    ],
-  },
-  {
-    type: "block-quote",
-    children: [{ text: "A wise quote." }],
-  },
-  {
-    type: "paragraph",
-    children: [{ text: "Try it out for yourself!" }],
-  },
-];
 
 export default SlateEditor;

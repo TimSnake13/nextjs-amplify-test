@@ -1,15 +1,17 @@
 import { AiOutlineDelete, AiOutlinePlusSquare } from "react-icons/ai";
 import { Button, Input, Text, Flex } from "@chakra-ui/react";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import NoteTabItem from "./NoteTabItem";
 import { DataStore } from "aws-amplify";
 import { Note } from "../../models";
 import {
   deleteNoteOnCloud,
   fetchMyNotes,
+  initialValue,
   uploadNoteToCloud,
-} from "./functions";
+} from "./utilities";
+import { Node as SlateNote } from "slate";
 import SlateEditor from "./SlateEditor";
 
 interface Props {
@@ -19,8 +21,11 @@ interface Props {
 const SlateJSNote = ({ userID }: Props) => {
   const [titleValue, setTitleValue] = React.useState("");
   const handleTitleChange = (event) => setTitleValue(event.target.value);
+
+  // Don't change contentValue directly, useEffect is setting it by JSON.stringify(slateValue)
   const [contentValue, setContentValue] = React.useState("");
   const handleContentChange = (event) => setContentValue(event.target.value);
+  const [slateValue, setSlateValue] = useState<SlateNote[]>(initialValue);
 
   const [currentNoteID, setCurrentNoteID] = useState("");
   const [notes, setNotes] = useState<Note[]>([]);
@@ -30,13 +35,24 @@ const SlateJSNote = ({ userID }: Props) => {
   // Fetch notes on mount and overwrite local notes
   async function fetchData() {
     const _notes = await fetchMyNotes(userID);
-    if (_notes) setNotes(_notes);
-    else setNotes([]);
+    if (_notes) {
+      // Fetch new data && set default
+      setNotes(_notes);
+      setTitleValue(_notes[0].title);
+      setSlateValue(JSON.parse(_notes[0].content));
+    } else setNotes([]);
   }
   // TODO: Add updatedAt time comparison to determine which version to overwrite
   useEffect(() => {
     fetchData();
+    return () => {
+      handleUpdateTargetNoteContent();
+    };
   }, [userID]);
+
+  useEffect(() => {
+    setContentValue(JSON.stringify(slateValue));
+  }, [slateValue]);
 
   useEffect(() => {
     console.log(notes);
@@ -64,7 +80,14 @@ const SlateJSNote = ({ userID }: Props) => {
     setCurrentNoteID(id);
     const currentNote = notes.find((v) => v.id === id);
     setTitleValue(currentNote.title);
-    setContentValue(currentNote.content);
+
+    try {
+      if (currentNote.content) setSlateValue(JSON.parse(currentNote.content));
+    } catch (error) {
+      console.log(id);
+      console.log(currentNote.content);
+      console.error(error);
+    }
   }
 
   function handleNewNote() {
@@ -74,11 +97,8 @@ const SlateJSNote = ({ userID }: Props) => {
       userID,
       updatedAt: new Date().toISOString(),
     });
-    // const n = await DataStore.save(newNote);
     setNotes((array) => [...array, newNote]);
     uploadNoteToCloud(newNote);
-    // console.log("New Note Added:");
-    // console.log(n);
   }
 
   function handleDeleteCurrentNote() {
@@ -88,20 +108,17 @@ const SlateJSNote = ({ userID }: Props) => {
     setCurrentNoteID(notes[0].id); // Change to the first note
 
     deleteNoteOnCloud(toDeleteID);
-    // console.log("Deleted: ");
-    // console.log(d);
   }
 
   function handleUpdateTargetNoteContent(targetNoteID = currentNoteID) {
     if (targetNoteID === "") {
-      // console.warn("targetNoteID is empty");
       return;
     }
     // Update local state
     const targetNote = notes.find((item) => item.id === targetNoteID);
     if (
-      targetNote.title === titleValue &&
-      targetNote.content === contentValue
+      !targetNote ||
+      (targetNote.title === titleValue && targetNote.content === contentValue)
     ) {
       return;
     }
@@ -170,7 +187,7 @@ const SlateJSNote = ({ userID }: Props) => {
           </Button>
         </div>
         <div>
-          <SlateEditor />
+          <SlateEditor slateValue={slateValue} setSlateValue={setSlateValue} />
         </div>
       </Flex>
     </>
