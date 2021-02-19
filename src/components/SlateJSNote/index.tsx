@@ -10,6 +10,7 @@ import {
   fetchMyNotes,
   uploadNoteToCloud,
 } from "./functions";
+import SlateEditor from "./SlateEditor";
 
 interface Props {
   userID: string;
@@ -167,6 +168,9 @@ const SlateJSNote = ({ userID }: Props) => {
           >
             Delete
           </Button>
+        </div>
+        <div>
+          <SlateEditor />
         </div>
       </Flex>
     </>
