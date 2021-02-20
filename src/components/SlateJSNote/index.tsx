@@ -2,7 +2,7 @@ import { AiOutlineDelete, AiOutlinePlusSquare } from "react-icons/ai";
 import { Button, Input, Text, Flex, Box } from "@chakra-ui/react";
 
 import React, { useEffect, useRef, useState } from "react";
-import NoteTabItem from "./NoteTabItem";
+import NoteTabItem from "./NoteLeftMenuItem";
 import { Note } from "../../models";
 import {
   deleteNoteOnCloud,
@@ -11,8 +11,9 @@ import {
   rearrangeNotesOrder,
   uploadNoteToCloud,
 } from "./utilities";
-import { Node as SlateNote } from "slate";
+import { Node as SlateNode } from "slate";
 import SlateEditor from "./SlateEditor";
+import NoteLeftMenu from "./NoteLeftMenu";
 
 interface Props {
   userID: string;
@@ -24,7 +25,7 @@ const SlateJSNote = ({ userID }: Props) => {
 
   // Don't change contentValue directly, useEffect is setting it by JSON.stringify(slateValue)
   const [contentValue, setContentValue] = React.useState("");
-  const [slateValue, setSlateValue] = useState<SlateNote[]>(initialValue);
+  const [slateValue, setSlateValue] = useState<SlateNode[]>(initialValue);
 
   const [currentNoteID, setCurrentNoteID] = useState("");
   const [notes, setNotes] = useState<Note[]>([]);
@@ -75,7 +76,7 @@ const SlateJSNote = ({ userID }: Props) => {
   /**
    * Update the UI content to selected note by
    * using setCurrentNoteID() setTitleValue() setSlateValue()
-   * @param id - The noteID needed to find the data in notes
+   * @param id - The noteID needed to find the note in notes
    */
   function handleCurrentNoteIDChanged(id: string) {
     const targetID = currentNoteID;
@@ -89,15 +90,14 @@ const SlateJSNote = ({ userID }: Props) => {
         if (currentNote.content) setSlateValue(JSON.parse(currentNote.content));
         else setSlateValue(initialValue);
       } catch (error) {
-        console.log(id);
-        console.log(currentNote.content);
         console.error(error);
       }
-    } else {
-      console.warn("current note not found");
     }
   }
 
+  /**
+   * Create a new note locally, push it to notes and upload to cloud
+   */
   function createNewNote() {
     const newNote = new Note({
       title: "",
@@ -155,36 +155,12 @@ const SlateJSNote = ({ userID }: Props) => {
   return (
     <>
       <Flex direction="row" h={"100vh"} w="100%">
-        <Flex direction="column" bg={"grey.600"} pt={8} px={4}>
-          {notes.map((note) => (
-            <NoteTabItem
-              key={note.id}
-              id={note.id}
-              title={note.title}
-              selected={note.id === currentNoteID ? true : false}
-              handleCurrentIDChanged={handleCurrentNoteIDChanged}
-            />
-          ))}
-          <Flex
-            align="center"
-            cursor="pointer"
-            onClick={() => createNewNote()}
-            mt={3}
-            mx={1}
-            paddingX={5}
-          >
-            <AiOutlinePlusSquare />
-            <Text pl={3}>New Note</Text>
-          </Flex>
-          {/* <Button
-            onClick={() => fetchDataAndOverWrite()}
-            variant="ghost"
-            colorScheme="blue"
-            mt={2}
-          >
-            Fetch Data
-          </Button> */}
-        </Flex>
+        <NoteLeftMenu
+          notes={notes}
+          currentNoteID={currentNoteID}
+          handleCurrentNoteIDChanged={handleCurrentNoteIDChanged}
+          createNewNote={createNewNote}
+        />
         <Flex flexDirection="column" paddingX="12" w="100%" pt="12">
           <Flex flexDirection="row">
             <Input
@@ -192,18 +168,16 @@ const SlateJSNote = ({ userID }: Props) => {
               onChange={(e) => handleTitleChange(e)}
               placeholder="Title"
               variant="unstyled"
-              size="lg"
+              size="xl"
               fontSize={24}
+              mb={4}
             />
-            <Button
-              onClick={() => deleteCurrentNote()}
-              leftIcon={<AiOutlineDelete />}
-              variant="outline"
-            >
-              Delete
-            </Button>
           </Flex>
-          <SlateEditor slateValue={slateValue} setSlateValue={setSlateValue} />
+          <SlateEditor
+            slateValue={slateValue}
+            setSlateValue={setSlateValue}
+            deleteCurrentNote={deleteCurrentNote}
+          />
         </Flex>
       </Flex>
     </>

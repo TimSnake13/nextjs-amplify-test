@@ -1,15 +1,16 @@
-// Majority of this file came from the official example code:
+// Majority of this file came from the Slatejs official example code:
 // https://github.com/ianstormtaylor/slate/blob/master/site/components.tsx
 // https://github.com/ianstormtaylor/slate/blob/master/site/examples/richtext.tsx
 
-import { Box, IconButton } from "@chakra-ui/react";
+import { Box, Button, IconButton } from "@chakra-ui/react";
 import isHotkey from "is-hotkey";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   AiOutlineBars,
   AiOutlineBlock,
   AiOutlineBold,
   AiOutlineCode,
+  AiOutlineDelete,
   AiOutlineItalic,
   AiOutlineOrderedList,
   AiOutlineUnderline,
@@ -36,11 +37,16 @@ const HOTKEYS = {
 const LIST_TYPES = ["numbered-list", "bulleted-list"];
 
 interface Props {
-  slateValue: Note[];
-  setSlateValue: React.Dispatch<React.SetStateAction<Note[]>>;
+  slateValue: Node[];
+  setSlateValue: React.Dispatch<React.SetStateAction<Node[]>>;
+  deleteCurrentNote: () => void;
 }
 
-const SlateEditor = ({ slateValue, setSlateValue }: Props) => {
+const SlateEditor = ({
+  slateValue,
+  setSlateValue,
+  deleteCurrentNote,
+}: Props) => {
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
@@ -68,6 +74,16 @@ const SlateEditor = ({ slateValue, setSlateValue }: Props) => {
         <BlockButton format="block-quote" icon={<AiOutlineBlock />} /> */}
         <BlockButton format="numbered-list" icon={<AiOutlineOrderedList />} />
         <BlockButton format="bulleted-list" icon={<AiOutlineBars />} />
+        <Button
+          onClick={() => deleteCurrentNote()}
+          marginRight="auto"
+          marginleft="auto"
+          color="black"
+          verticalAlign="text-bottom"
+          size="lg"
+        >
+          <AiOutlineDelete />
+        </Button>
       </Box>
       <Editable
         renderElement={renderElement}

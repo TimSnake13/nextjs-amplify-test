@@ -15,20 +15,22 @@ export async function fetchMyNotes(userID: string) {
 
 export function rearrangeNotesOrder(notes: Note[]) {
   const newNotes = [...notes];
-  for (let i = 0; i < notes.length; i++) {
-    for (let j = 0; j < notes.length; j++) {
-      if (
-        newNotes[i].updatedAt &&
-        newNotes[j].updatedAt &&
-        newNotes[i].updatedAt > newNotes[j].updatedAt
-      ) {
-        let temp = newNotes[i];
-        newNotes[i] = newNotes[j];
-        newNotes[j] = temp;
-      }
-    }
-  }
-  return newNotes;
+  // for (let i = 0; i < notes.length; i++) {
+  //   for (let j = 0; j < notes.length; j++) {
+  //     if (
+  //       newNotes[i].updatedAt &&
+  //       newNotes[j].updatedAt &&
+  //       newNotes[i].updatedAt > newNotes[j].updatedAt
+  //     ) {
+  //       let temp = newNotes[i];
+  //       newNotes[i] = newNotes[j];
+  //       newNotes[j] = temp;
+  //     }
+  //   }
+  // }
+
+  // return [...notes].sort((a,b) => (b.updatedAt ? b.updatedAt : 0) - a.updatedAt);
+  return notes;
 }
 
 export const initialValue = [
