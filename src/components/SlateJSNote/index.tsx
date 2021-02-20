@@ -48,9 +48,6 @@ const SlateJSNote = ({ userID }: Props) => {
 
   useEffect(() => {
     fetchDataAndOverWrite();
-    return () => {
-      saveTargetNoteContent();
-    };
   }, []);
 
   useEffect(() => {
@@ -74,13 +71,14 @@ const SlateJSNote = ({ userID }: Props) => {
   }, [titleValue, contentValue]);
 
   /**
-   * Update the UI content to selected note by
+   * Save previous node date first,
+   * then update the UI content to selected note by
    * using setCurrentNoteID() setTitleValue() setSlateValue()
    * @param id - The noteID needed to find the note in notes
    */
   function handleCurrentNoteIDChanged(id: string) {
     const targetID = currentNoteID;
-    saveTargetNoteContent(targetID); // Save current note data before switch note
+    saveTargetNoteContent(targetID);
 
     setCurrentNoteID(id);
     const currentNote = notes.find((v) => v.id === id);
@@ -126,7 +124,7 @@ const SlateJSNote = ({ userID }: Props) => {
    *  After that rearrangeNotesOrder().
    *  Then uploadNoteToCLoud().
    */
-  function saveTargetNoteContent(targetNoteID = currentNoteID) {
+  function saveTargetNoteContent(targetNoteID = "") {
     if (targetNoteID === "") {
       return;
     }
@@ -173,11 +171,11 @@ const SlateJSNote = ({ userID }: Props) => {
               mb={4}
             />
           </Flex>
-          <SlateEditor
+          {/* <SlateEditor
             slateValue={slateValue}
             setSlateValue={setSlateValue}
             deleteCurrentNote={deleteCurrentNote}
-          />
+          /> */}
         </Flex>
       </Flex>
     </>
